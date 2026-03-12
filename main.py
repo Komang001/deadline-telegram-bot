@@ -16,7 +16,7 @@ from scheduler import reminder_job
 
 async def post_init(application: Application):
     """Run after bot initialization."""
-    application.job_queue.run_repeating(reminder_job, interval=60, first=10)
+    application.job_queue.run_repeating(reminder_job, interval=30, first=10)
     print("✅ Scheduler started - reminder will check every minute")
 
 def main():
