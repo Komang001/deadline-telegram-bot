@@ -19,7 +19,7 @@ async def check_and_send_reminders(application):
     now = datetime.now(WIB)
     bot = application.bot
     
-    for task in tasks:
+for task in tasks:
     task_id, user_id, mata_kuliah, nama_tugas, deadline_str = task
 
     try:
