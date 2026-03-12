@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
+import pytz
 import database
+
+WIB = pytz.timezone("Asia/Jakarta")
 
 REMINDER_TIMES = {
     "3_hari": timedelta(days=3),
@@ -12,16 +15,19 @@ sent_reminders = set()
 async def check_and_send_reminders(application):
     """Check all tasks and send reminders if needed."""
     tasks = database.get_all_tasks()
-    now = datetime.now()
+
+    now = datetime.now(WIB)
     bot = application.bot
     
     for task in tasks:
         task_id, user_id, mata_kuliah, nama_tugas, deadline_str = task
         
         try:
-            deadline = datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
+            deadline = WIB.localize(datetime.strptime(deadline_str, "%Y-%m-%d %H:%M"))
         except ValueError:
             continue
+
+	print(f"Checking task {task_id} | now={now} | deadline={deadline}")
         
         if deadline < now:
             continue
@@ -30,8 +36,7 @@ async def check_and_send_reminders(application):
             reminder_time = deadline - reminder_delta
             reminder_key = f"{task_id}_{reminder_name}"
             
-            if reminder_time <= now < reminder_time + timedelta(minutes=1):
-                if reminder_key not in sent_reminders:
+            if now >= reminder_time and now < deadline and reminder_key not in sent_reminders:
                     message = format_reminder_message(mata_kuliah, nama_tugas, deadline, reminder_name)
                     try:
                         await bot.send_message(chat_id=user_id, text=message)

@@ -1,4 +1,6 @@
 import asyncio
+import pytz
+WIB = pytz.timezone("Asia/Jakarta")
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from config import BOT_TOKEN
 import database
@@ -27,7 +29,12 @@ def main():
     database.init_db()
     print("✅ Database initialized")
     
-    application = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
+    application = (
+    Application.builder()
+    .token(BOT_TOKEN)
+    .post_init(post_init)
+    .build()
+)
     
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))

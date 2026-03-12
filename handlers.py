@@ -9,6 +9,8 @@ from telegram.ext import (
 )
 import database
 from datetime import datetime
+import pytz
+WIB = pytz.timezone("Asia/Jakarta")
 
 (MATA_KULIAH, NAMA_TUGAS, DEADLINE) = range(3)
 
@@ -70,7 +72,7 @@ async def deadline_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     try:
         deadline = datetime.strptime(text, "%Y-%m-%d %H:%M")
-        if deadline < datetime.now():
+        if deadline < datetime.now(WIB):
             await update.message.reply_text("❌ Deadline tidak boleh di masa lalu. Masukkan lagi:")
             return DEADLINE
     except ValueError:
@@ -108,7 +110,7 @@ async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     message = "📋 DAFTAR TUGAS\n\n"
-    now = datetime.now()
+    now = datetime.now(WIB)
     
     for i, task in enumerate(tasks, 1):
         task_id, mata_kuliah, nama_tugas, deadline_str = task
@@ -144,7 +146,7 @@ async def hapus_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("📋 Kamu belum punya tugas.")
         return
     
-    message = "🗑️ HAPUS TUGAS\n\nMasukkan ID tugas yang ingin dihapus:\n\n"
+    message = "🗑️ HAPUS TUGAS\n\nGunakan perintah:\n/hapus <id>\nContoh: /hapus 3\n\n"
     for task in tasks:
         task_id, mata_kuliah, nama_tugas, deadline_str = task
         message += f"ID {task_id}: {mata_kuliah} - {nama_tugas} ({deadline_str})\n"
@@ -167,7 +169,7 @@ async def hapus_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def batal_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /batal command."""
-    await update.message.reply_text("❌ Operasi dibatalkan.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/start")]]))
+    await update.message.reply_text("❌ Operasi dibatalkan.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/start")]], resize_keyboard=True))
     return ConversationHandler.END
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
