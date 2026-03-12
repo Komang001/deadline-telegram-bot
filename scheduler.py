@@ -8,6 +8,9 @@ REMINDER_TIMES = {
     "3_hari": timedelta(days=3),
     "1_hari": timedelta(days=1),
     "6_jam": timedelta(hours=6),
+    "3_jam": timedelta(hours=3),
+    "1_jam": timedelta(hours=1),
+    "30_menit": timedelta(minutes=30),
 }
 
 sent_reminders = set()
@@ -55,8 +58,14 @@ def format_reminder_message(mata_kuliah, nama_tugas, deadline, reminder_type):
         reminder_text = "3 HARI LAGI"
     elif reminder_type == "1_hari":
         reminder_text = "1 HARI LAGI"
-    else:
+    elif reminder_type == "6_jam":
         reminder_text = "6 JAM LAGI"
+    elif reminder_type == "3_jam":
+        reminder_text = "3 JAM LAGI"
+    elif reminder_type == "1_jam":
+        reminder_text = "1 JAM LAGI"
+    elif reminder_type == "30_menit":
+        reminder_text = "30 MENIT LAGI"
 
     return f"""⏰ PENGINGAT {reminder_text}!
 
