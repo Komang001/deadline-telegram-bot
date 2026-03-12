@@ -121,29 +121,29 @@ async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     now = datetime.now(WIB)
     
     for i, task in enumerate(tasks, 1):
-    task_id, mata_kuliah, nama_tugas, deadline_str = task
+        task_id, mata_kuliah, nama_tugas, deadline_str = task
     
-    try:
-        deadline = WIB.localize(datetime.strptime(deadline_str, "%Y-%m-%d %H:%M"))
+        try:
+            deadline = WIB.localize(datetime.strptime(deadline_str, "%Y-%m-%d %H:%M"))
 
-        if deadline < now:
-            status = "⏰ TERLAMBAT"
-        else:
-            remaining = deadline - now
-
-            days = remaining.days
-            hours = remaining.seconds // 3600
-            minutes = (remaining.seconds % 3600) // 60
-
-            if days > 0:
-                status = f"📅 {days} hari lagi"
-            elif hours > 0:
-                status = f"⏳ {hours} jam {minutes} menit lagi"
+            if deadline < now:
+                status = "⏰ TERLAMBAT"
             else:
-                status = f"⚠️ {minutes} menit lagi"
+                remaining = deadline - now
 
-    except:
-        status = ""
+                days = remaining.days
+                hours = remaining.seconds // 3600
+                minutes = (remaining.seconds % 3600) // 60
+
+                if days > 0:
+                    status = f"📅 {days} hari lagi"
+                elif hours > 0:
+                    status = f"⏳ {hours} jam {minutes} menit lagi"
+                else:
+                    status = f"⚠️ {minutes} menit lagi"
+
+        except:
+            status = ""
         
         message += f"{i}. {mata_kuliah}\n"
         message += f"   {nama_tugas}\n"
