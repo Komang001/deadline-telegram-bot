@@ -13,11 +13,21 @@ REMINDER_TIMES = {
     "30_menit": timedelta(minutes=30),
 }
 
+REMINDER_TEXT = {
+    "3_hari": "3 HARI LAGI",
+    "1_hari": "1 HARI LAGI",
+    "6_jam": "6 JAM LAGI",
+    "3_jam": "3 JAM LAGI",
+    "1_jam": "1 JAM LAGI",
+    "30_menit": "30 MENIT LAGI",
+}
+
 sent_reminders = set()
 
 
 async def check_and_send_reminders(application):
     tasks = database.get_all_tasks()
+
     now = datetime.now(WIB)
     bot = application.bot
 
@@ -26,54 +36,37 @@ async def check_and_send_reminders(application):
 
         try:
             deadline = WIB.localize(datetime.strptime(deadline_str, "%Y-%m-%d %H:%M"))
-        except ValueError:
+        except:
             continue
-
-        print(f"Checking task {task_id} | now={now} | deadline={deadline}")
 
         if deadline < now:
             continue
 
-        for reminder_name, reminder_delta in REMINDER_TIMES.items():
-            reminder_time = deadline - reminder_delta
+        for reminder_name, delta in REMINDER_TIMES.items():
+
+            reminder_time = deadline - delta
             reminder_key = f"{task_id}_{reminder_name}"
 
-            if reminder_time <= now and reminder_key not in sent_reminders:
-                message = format_reminder_message(
-                    mata_kuliah, nama_tugas, deadline, reminder_name
+            if now >= reminder_time and reminder_key not in sent_reminders:
+
+                reminder_text = REMINDER_TEXT.get(reminder_name, "")
+
+                message = (
+                    f"⏰ PENGINGAT {reminder_text}!\n\n"
+                    f"📚 {mata_kuliah}\n"
+                    f"📝 {nama_tugas}\n"
+                    f"📅 Deadline: {deadline.strftime('%d/%m/%Y %H:%M')}\n\n"
+                    f"Segera kerjakan sebelum terlambat!"
                 )
 
                 try:
                     await bot.send_message(chat_id=user_id, text=message)
                     sent_reminders.add(reminder_key)
-                    print(f"Reminder sent: {reminder_name}")
+
+                    print(f"Reminder sent -> {task_id} {reminder_name}")
+
                 except Exception as e:
-                    print(f"Error sending reminder: {e}")
-
-
-def format_reminder_message(mata_kuliah, nama_tugas, deadline, reminder_type):
-    deadline_formatted = deadline.strftime("%d/%m/%Y jam %H:%M")
-
-    if reminder_type == "3_hari":
-        reminder_text = "3 HARI LAGI"
-    elif reminder_type == "1_hari":
-        reminder_text = "1 HARI LAGI"
-    elif reminder_type == "6_jam":
-        reminder_text = "6 JAM LAGI"
-    elif reminder_type == "3_jam":
-        reminder_text = "3 JAM LAGI"
-    elif reminder_type == "1_jam":
-        reminder_text = "1 JAM LAGI"
-    elif reminder_type == "30_menit":
-        reminder_text = "30 MENIT LAGI"
-
-    return f"""⏰ PENGINGAT {reminder_text}!
-
-📚 {mata_kuliah}
-📝 {nama_tugas}
-📅 Deadline: {deadline_formatted}
-
-Jangan lupa kerjakan!"""
+                    print(e)
 
 
 async def reminder_job(application):
