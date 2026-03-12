@@ -20,17 +20,17 @@ async def check_and_send_reminders(application):
     bot = application.bot
     
     for task in tasks:
-        task_id, user_id, mata_kuliah, nama_tugas, deadline_str = task
-        
-        try:
-            deadline = WIB.localize(datetime.strptime(deadline_str, "%Y-%m-%d %H:%M"))
-        except ValueError:
-            continue
+    task_id, user_id, mata_kuliah, nama_tugas, deadline_str = task
 
-	print(f"Checking task {task_id} | now={now} | deadline={deadline}")
-        
-        if deadline < now:
-            continue
+    try:
+        deadline = WIB.localize(datetime.strptime(deadline_str, "%Y-%m-%d %H:%M"))
+    except ValueError:
+        continue
+
+    print(f"Checking task {task_id} | now={now} | deadline={deadline}")
+
+    if deadline < now:
+        continue
         
         for reminder_name, reminder_delta in REMINDER_TIMES.items():
             reminder_time = deadline - reminder_delta
