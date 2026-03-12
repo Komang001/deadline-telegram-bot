@@ -66,37 +66,45 @@ async def nama_tugas_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def deadline_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle deadline input and save task."""
     text = update.message.text.strip()
+
     if text == "/batal":
-        await update.message.reply_text("❌ Operasi dibatalkan.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/start")]]))
+        await update.message.reply_text(
+            "❌ Operasi dibatalkan.",
+            reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/start")]], resize_keyboard=True),
+        )
         return ConversationHandler.END
-    
+
     try:
-        deadline = datetime.strptime(text, "%Y-%m-%d %H:%M")
+        deadline = WIB.localize(datetime.strptime(text, "%Y-%m-%d %H:%M"))
+
         if deadline < datetime.now(WIB):
-            await update.message.reply_text("❌ Deadline tidak boleh di masa lalu. Masukkan lagi:")
+            await update.message.reply_text(
+                "❌ Deadline tidak boleh di masa lalu.\nMasukkan lagi:"
+            )
             return DEADLINE
+
     except ValueError:
         await update.message.reply_text(
-            "❌ Format salah! Gunakan: YYYY-MM-DD HH:MM\n"
-            "Contoh: 2025-03-15 23:59"
+            "❌ Format salah!\nGunakan: YYYY-MM-DD HH:MM\n"
+            "Contoh: 2026-03-15 23:59"
         )
         return DEADLINE
-    
+
     user_id = update.effective_user.id
     mata_kuliah = context.user_data["mata_kuliah"]
     nama_tugas = context.user_data["nama_tugas"]
-    
-    task_id = database.add_task(user_id, mata_kuliah, nama_tugas, text)
-    
+
+    database.add_task(user_id, mata_kuliah, nama_tugas, text)
+
     await update.message.reply_text(
         f"✅ Tugas berhasil ditambahkan!\n\n"
         f"📚 {mata_kuliah}\n"
         f"📝 {nama_tugas}\n"
         f"📅 Deadline: {text}\n\n"
         f"🔔 Kamu akan mendapat pengingat 3 hari, 1 hari, dan 6 jam sebelum deadline.",
-        reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/start")]])
+        reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/start")]], resize_keyboard=True),
     )
-    
+
     context.user_data.clear()
     return ConversationHandler.END
 
